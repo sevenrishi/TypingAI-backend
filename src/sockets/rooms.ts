@@ -3,10 +3,11 @@ type RoomState = {
   text: string;
   players: Record<
     string,
-    { name: string; progress: number; wpm?: number; accuracy?: number; ready?: boolean }
+    { name: string; progress: number; wpm?: number; accuracy?: number; ready?: boolean; finished?: boolean }
   >;
   host?: string; // socket id of host
   raceStart?: number | null; // timestamp when race will start
+  finishedPlayers?: string[]; // socket ids of finished players
 };
 
 const rooms: Record<string, RoomState> = {};
@@ -19,15 +20,16 @@ function emitRoomState(io: Server, room: string) {
     text: state.text,
     players: state.players,
     host: state.host,
-    raceStart: state.raceStart || null
+    raceStart: state.raceStart || null,
+    finishedPlayers: state.finishedPlayers || []
   });
 }
 
 export function attachRoomHandlers(io: Server) {
   io.on('connection', (socket: Socket) => {
     socket.on('room:create', ({ room, text, name }) => {
-      rooms[room] = { text, players: {}, host: socket.id, raceStart: null };
-      rooms[room].players[socket.id] = { name: name || 'Anon', progress: 0, ready: false } as any;
+      rooms[room] = { text, players: {}, host: socket.id, raceStart: null, finishedPlayers: [] };
+      rooms[room].players[socket.id] = { name: name || 'Anon', progress: 0, ready: false, finished: false } as any;
       socket.join(room);
       emitRoomState(io, room);
     });
@@ -35,7 +37,7 @@ export function attachRoomHandlers(io: Server) {
     socket.on('room:join', ({ room, name }) => {
       const state = rooms[room];
       if (!state) return socket.emit('room:error', { error: 'Room not found' });
-      state.players[socket.id] = { name: name || 'Anon', progress: 0, ready: false } as any;
+      state.players[socket.id] = { name: name || 'Anon', progress: 0, ready: false, finished: false } as any;
       socket.join(room);
       emitRoomState(io, room);
     });
@@ -48,6 +50,15 @@ export function attachRoomHandlers(io: Server) {
         p.progress = progress;
         p.wpm = wpm;
         p.accuracy = accuracy;
+        
+        // Mark as finished if progress is 100%
+        if (progress >= 1.0 && !p.finished) {
+          p.finished = true;
+          if (!state.finishedPlayers) state.finishedPlayers = [];
+          if (!state.finishedPlayers.includes(socket.id)) {
+            state.finishedPlayers.push(socket.id);
+          }
+        }
       }
       emitRoomState(io, room);
     });
@@ -77,6 +88,10 @@ export function attachRoomHandlers(io: Server) {
         const keys = Object.keys(state.players);
         state.host = keys.length ? keys[0] : undefined;
       }
+      // Remove from finished players list
+      if (state.finishedPlayers) {
+        state.finishedPlayers = state.finishedPlayers.filter(id => id !== socket.id);
+      }
       emitRoomState(io, room);
     });
 
@@ -88,7 +103,20 @@ export function attachRoomHandlers(io: Server) {
       // schedule race start a few seconds in the future for countdown sync
       const startAt = Date.now() + 5000; // 5s countdown
       state.raceStart = startAt;
+      // Reset finished players for new race
+      state.finishedPlayers = [];
+      Object.values(state.players).forEach(p => p.finished = false);
+      // Emit the latest room state (including text) first so clients have the script before countdown
+      emitRoomState(io, room);
       io.to(room).emit('race:start', { room, startAt, host: state.host });
+    });
+
+    // allow host to set/update the room text (only host)
+    socket.on('room:setText', ({ room, text }) => {
+      const state = rooms[room];
+      if (!state) return socket.emit('room:error', { error: 'Room not found' });
+      if (state.host !== socket.id) return socket.emit('room:error', { error: 'Only host can set the script' });
+      state.text = text;
       emitRoomState(io, room);
     });
 
@@ -102,6 +130,10 @@ export function attachRoomHandlers(io: Server) {
             const keys = Object.keys(state.players);
             state.host = keys.length ? keys[0] : undefined;
             io.to(roomKey).emit('room:host', { host: state.host });
+          }
+          // Remove from finished players list
+          if (state.finishedPlayers) {
+            state.finishedPlayers = state.finishedPlayers.filter(id => id !== socket.id);
           }
           emitRoomState(io, roomKey);
         }
