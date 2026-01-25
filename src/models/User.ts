@@ -12,6 +12,8 @@ export interface IUser extends Document {
   totalBattles?: number;
   history: mongoose.Types.ObjectId[];
   sessions: mongoose.Types.ObjectId[];
+  resetCode?: string;
+  resetCodeExpiry?: Date;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -25,7 +27,9 @@ const UserSchema = new Schema<IUser>({
   totalPracticeSessions: { type: Number, default: 0 },
   totalBattles: { type: Number, default: 0 },
   history: [{ type: Schema.Types.ObjectId, ref: 'TestResult' }],
-  sessions: [{ type: Schema.Types.ObjectId, ref: 'Session' }]
+  sessions: [{ type: Schema.Types.ObjectId, ref: 'Session' }],
+  resetCode: { type: String, default: null },
+  resetCodeExpiry: { type: Date, default: null }
 }, { timestamps: true });
 
 export default mongoose.model<IUser>('User', UserSchema);
