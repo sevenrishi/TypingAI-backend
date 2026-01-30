@@ -54,7 +54,7 @@ export async function forgotPassword(req: Request, res: Response) {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(200).json({ message: 'If an account exists, a reset code has been sent' });
+      return res.status(404).json({ error: 'No account present in this mail id.' });
     }
 
     const resetCode = Math.random().toString().slice(2, 8).padStart(6, '0');
