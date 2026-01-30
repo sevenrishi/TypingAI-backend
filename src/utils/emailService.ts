@@ -70,7 +70,7 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
 }
 
 export async function sendActivationEmail(email: string, displayName: string, userId: string): Promise<void> {
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
   const activationUrl = `${frontendUrl}/activate?code=${userId}`;
 
   const html = `
