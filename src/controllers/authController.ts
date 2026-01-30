@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { randomBytes } from 'crypto';
 import User from '../models/User';
-import { sendPasswordResetEmail } from '../utils/emailService';
+import { sendPasswordResetEmail, sendActivationEmail } from '../utils/emailService';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -13,16 +13,33 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
 export async function register(req: Request, res: Response) {
   const { email, password, displayName } = req.body;
   if (!password || typeof password !== 'string') return res.status(400).json({ error: 'Password required' });
+  if (!email || typeof email !== 'string') return res.status(400).json({ error: 'Email required' });
+  if (!displayName || typeof displayName !== 'string') return res.status(400).json({ error: 'Display name required' });
 
   try {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
 
-    const user = new User({ email, passwordHash: hash, displayName });
+    const user = new User({ 
+      email, 
+      passwordHash: hash, 
+      displayName,
+      isActivated: false 
+    });
     await user.save();
 
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-    return res.json({ token, user: { id: user._id, displayName: user.displayName, email: user.email } });
+    // Send activation email
+    try {
+      await sendActivationEmail(email, displayName, user._id.toString());
+    } catch (emailErr) {
+      console.error('Failed to send activation email:', emailErr);
+      // Continue even if email fails
+    }
+
+    return res.status(201).json({ 
+      message: 'Registration successful! Please check your email to activate your account.',
+      email: user.email
+    });
   } catch (err: any) {
     if (err.code === 11000) return res.status(400).json({ error: 'Email already exists' });
     console.error(err);
@@ -35,10 +52,15 @@ export async function login(req: Request, res: Response) {
   if (!email || !password) return res.status(400).json({ error: 'Missing credentials' });
 
   const user = await User.findOne({ email });
-  if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+  if (!user) return res.status(401).json({ error: 'Email or password is wrong' });
 
   const ok = await bcrypt.compare(password, user.passwordHash || '');
-  if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
+  if (!ok) return res.status(401).json({ error: 'Email or password is wrong' });
+
+  // Check if account is activated
+  if (!user.isActivated) {
+    return res.status(403).json({ error: 'Your account is not activated. Please check your email to activate your account.' });
+  }
 
   const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
   return res.json({ token, user: { id: user._id, displayName: user.displayName, email: user.email } });
@@ -142,5 +164,47 @@ export async function resetPassword(req: Request, res: Response) {
   } catch (error: any) {
     console.error('Reset password error:', error);
     return res.status(500).json({ error: 'Failed to reset password' });
+  }
+}
+
+export async function activateAccount(req: Request, res: Response) {
+  const { code } = req.query;
+
+  // Validate code
+  if (!code || typeof code !== 'string') {
+    return res.status(400).json({ error: 'Invalid or missing activation code' });
+  }
+
+  try {
+    // Find user by ID
+    const user = await User.findById(code);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Check if already activated
+    if (user.isActivated) {
+      return res.status(200).json({ 
+        message: 'Account is already activated. You can now log in.' 
+      });
+    }
+
+    // Activate the account
+    user.isActivated = true;
+    await user.save();
+
+    return res.status(200).json({ 
+      message: 'Account activated successfully. You can now log in.' 
+    });
+  } catch (error: any) {
+    console.error('Account activation error:', error);
+    
+    // Handle invalid ObjectId format
+    if (error.name === 'CastError') {
+      return res.status(400).json({ error: 'Invalid activation code format' });
+    }
+    
+    return res.status(500).json({ error: 'Failed to activate account' });
   }
 }
