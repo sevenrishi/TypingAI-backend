@@ -14,6 +14,7 @@ export interface IUser extends Document {
   sessions: mongoose.Types.ObjectId[];
   resetCode?: string;
   resetCodeExpiry?: Date;
+  isActivated?: boolean;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -29,7 +30,8 @@ const UserSchema = new Schema<IUser>({
   history: [{ type: Schema.Types.ObjectId, ref: 'TestResult' }],
   sessions: [{ type: Schema.Types.ObjectId, ref: 'Session' }],
   resetCode: { type: String, default: null },
-  resetCodeExpiry: { type: Date, default: null }
+  resetCodeExpiry: { type: Date, default: null },
+  isActivated: { type: Boolean, default: false }
 }, { timestamps: true });
 
 export default mongoose.model<IUser>('User', UserSchema);
