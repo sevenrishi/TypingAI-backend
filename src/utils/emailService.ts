@@ -44,22 +44,84 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
 
 export async function sendPasswordResetEmail(email: string, resetCode: string): Promise<void> {
   const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #333;">Password Reset Code</h2>
-      <p style="color: #666; font-size: 16px;">
-        You requested to reset your password. Here is your reset code:
-      </p>
-      <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; text-align: center;">
-        <h1 style="color: #4f46e5; letter-spacing: 5px; margin: 0;">${resetCode}</h1>
-      </div>
-      <p style="color: #666; font-size: 14px;">
-        This code will expire in 10 minutes. If you did not request this password reset, please ignore this email.
-      </p>
-      <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-      <p style="color: #999; font-size: 12px; text-align: center;">
-        TypingAI Team
-      </p>
-    </div>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Password Reset Code</title>
+    </head>
+    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f7fa; padding: 40px 0;">
+        <tr>
+          <td align="center">
+            <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
+              <!-- Header -->
+              <tr>
+                <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                  <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
+                    Reset Your Password 🔐
+                  </h1>
+                </td>
+              </tr>
+              
+              <!-- Content -->
+              <tr>
+                <td style="padding: 40px 30px;">
+                  <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 24px; font-weight: 600;">
+                    Here is your password reset code
+                  </h2>
+                  <p style="margin: 0 0 20px 0; color: #666666; font-size: 16px; line-height: 1.6;">
+                    We received a request to reset your TypingAI password. Use the code below to continue the reset process.
+                  </p>
+                  
+                  <!-- Reset Code -->
+                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
+                    <tr>
+                      <td align="center">
+                        <div style="display: inline-block; background-color: #f8f9fa; border: 1px solid #e9ecef; padding: 18px 28px; border-radius: 10px;">
+                          <span style="color: #4f46e5; font-size: 28px; font-weight: 700; letter-spacing: 6px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                            ${resetCode}
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                  
+                  <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px; line-height: 1.6;">
+                    This code will expire in 10 minutes.
+                  </p>
+                </td>
+              </tr>
+              
+              <!-- Security Note -->
+              <tr>
+                <td style="padding: 0 30px 40px 30px;">
+                  <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px;">
+                    <p style="margin: 0; color: #856404; font-size: 13px; line-height: 1.5;">
+                      <strong>Security Note:</strong> If you did not request a password reset, please ignore this email. Your account remains secure.
+                    </p>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Footer -->
+              <tr>
+                <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef;">
+                  <p style="margin: 0 0 10px 0; color: #6c757d; font-size: 14px;">
+                    Need help? Contact us at <a href="mailto:support@typingai.com" style="color: #667eea; text-decoration: none;">support@typingai.com</a>
+                  </p>
+                  <p style="margin: 0; color: #adb5bd; font-size: 12px;">
+                    © 2026 TypingAI. All rights reserved.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
   `;
 
   await sendEmail({
