@@ -5,10 +5,14 @@ import { randomBytes } from 'crypto';
 import User from '../models/User';
 import { sendPasswordResetEmail, sendActivationEmail } from '../utils/emailService';
 import dotenv from 'dotenv';
+import { OAuth2Client } from 'google-auth-library';
+import axios from 'axios';
 
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 export async function register(req: Request, res: Response) {
   const { email, password, displayName } = req.body;
@@ -206,5 +210,106 @@ export async function activateAccount(req: Request, res: Response) {
     }
     
     return res.status(500).json({ error: 'Failed to activate account' });
+  }
+}
+
+export async function googleAuth(req: Request, res: Response) {
+  const { credential, accessToken } = req.body || {};
+
+  if ((!credential || typeof credential !== 'string') && (!accessToken || typeof accessToken !== 'string')) {
+    return res.status(400).json({ error: 'Missing Google credential' });
+  }
+
+  try {
+    let googleId: string | undefined;
+    let email: string | undefined;
+    let displayName: string | undefined;
+    let photoUrl: string | undefined;
+    let emailVerified: boolean | undefined;
+
+    if (credential) {
+      if (!GOOGLE_CLIENT_ID) {
+        return res.status(500).json({ error: 'Google OAuth is not configured' });
+      }
+
+      const ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: GOOGLE_CLIENT_ID
+      });
+
+      const payload = ticket.getPayload();
+      if (!payload || !payload.email) {
+        return res.status(401).json({ error: 'Invalid Google token' });
+      }
+
+      googleId = payload.sub;
+      email = payload.email;
+      displayName = payload.name || email.split('@')[0];
+      photoUrl = payload.picture || undefined;
+      emailVerified = payload.email_verified ?? undefined;
+    } else if (accessToken) {
+      const userInfo = await axios.get('https://openidconnect.googleapis.com/v1/userinfo', {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      const data = userInfo.data as {
+        sub?: string;
+        email?: string;
+        name?: string;
+        picture?: string;
+        email_verified?: boolean;
+      };
+
+      if (!data?.email || !data?.sub) {
+        return res.status(401).json({ error: 'Invalid Google token' });
+      }
+
+      googleId = data.sub;
+      email = data.email;
+      displayName = data.name || email.split('@')[0];
+      photoUrl = data.picture || undefined;
+      emailVerified = data.email_verified ?? undefined;
+    }
+
+    if (!googleId || !email) {
+      return res.status(401).json({ error: 'Invalid Google token' });
+    }
+
+    if (emailVerified === false) {
+      return res.status(401).json({ error: 'Google email is not verified' });
+    }
+
+    let user = await User.findOne({ $or: [{ googleId }, { email }] });
+
+    if (!user) {
+      user = new User({
+        email,
+        displayName,
+        googleId,
+        photoUrl,
+        isActivated: true
+      });
+    } else {
+      if (!user.googleId) user.googleId = googleId;
+      if (!user.displayName) user.displayName = displayName;
+      if (photoUrl) user.photoUrl = photoUrl;
+      if (!user.isActivated) user.isActivated = true;
+    }
+
+    await user.save();
+
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    return res.json({
+      token,
+      user: {
+        id: user._id,
+        displayName: user.displayName,
+        email: user.email,
+        photoUrl: user.photoUrl,
+        googleId: user.googleId
+      }
+    });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    return res.status(401).json({ error: 'Failed to authenticate with Google' });
   }
 }
