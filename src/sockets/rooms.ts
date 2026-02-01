@@ -37,6 +37,7 @@ export function attachRoomHandlers(io: Server) {
     socket.on('room:join', ({ room, name }) => {
       const state = rooms[room];
       if (!state) return socket.emit('room:error', { error: 'Room not found' });
+      if (state.raceStart) return socket.emit('room:error', { error: 'Race already started. Please wait for the next round.' });
       state.players[socket.id] = { name: name || 'Anon', progress: 0, ready: false, finished: false } as any;
       socket.join(room);
       emitRoomState(io, room);
@@ -59,6 +60,12 @@ export function attachRoomHandlers(io: Server) {
             state.finishedPlayers.push(socket.id);
           }
         }
+      }
+
+      // If all players have finished, mark race as ended
+      const players = Object.values(state.players);
+      if (players.length > 0 && players.every(player => player.finished)) {
+        state.raceStart = null;
       }
       emitRoomState(io, room);
     });
@@ -109,6 +116,23 @@ export function attachRoomHandlers(io: Server) {
       // Emit the latest room state (including text) first so clients have the script before countdown
       emitRoomState(io, room);
       io.to(room).emit('race:start', { room, startAt, host: state.host });
+    });
+
+    socket.on('race:reset', ({ room }) => {
+      const state = rooms[room];
+      if (!state) return socket.emit('room:error', { error: 'Room not found' });
+      const p = state.players[socket.id];
+      if (p) {
+        p.ready = false;
+        p.finished = false;
+        p.progress = 0;
+        p.wpm = 0;
+        p.accuracy = 0;
+      }
+      if (state.finishedPlayers) {
+        state.finishedPlayers = state.finishedPlayers.filter(id => id !== socket.id);
+      }
+      emitRoomState(io, room);
     });
 
     // allow host to set/update the room text (only host)
