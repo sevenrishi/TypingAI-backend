@@ -4,6 +4,8 @@ export interface IUser extends Document {
   email?: string;
   passwordHash?: string;
   displayName?: string;
+  googleId?: string;
+  photoUrl?: string;
   avatarId?: string;
   bestWPM?: number;
   averageAccuracy?: number;
@@ -46,6 +48,8 @@ const UserSchema = new Schema<IUser>({
   email: { type: String, unique: true, sparse: true },
   passwordHash: { type: String },
   displayName: { type: String },
+  googleId: { type: String, unique: true, sparse: true, index: true },
+  photoUrl: { type: String },
   avatarId: { type: String, default: 'avatar-1' },
   bestWPM: { type: Number, default: 0 },
   averageAccuracy: { type: Number, default: 0 },
