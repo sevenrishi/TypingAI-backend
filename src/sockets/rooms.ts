@@ -48,7 +48,7 @@ export function attachRoomHandlers(io: Server) {
     socket.on('room:join', ({ room, name }) => {
       const state = rooms[room];
       if (!state) return socket.emit('room:error', { error: 'Room not found' });
-      if (state.raceStart) return socket.emit('room:error', { error: 'Race already started. Please wait for the next round.' });
+      if (state.raceStart) return socket.emit('room:error', { error: 'Battle already started. Please wait for the next round.' });
       state.players[socket.id] = { name: name || 'Anon', progress: 0, ready: false, finished: false } as any;
       socket.join(room);
       emitRoomState(io, room);
