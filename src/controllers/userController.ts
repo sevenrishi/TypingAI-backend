@@ -1,7 +1,7 @@
 import { Response } from 'express';
-import User from '../models/User.ts';
-import TestResult from '../models/TestResult.ts';
-import { AuthRequest } from '../middleware/auth.ts';
+import User from '../models/User';
+import TestResult from '../models/TestResult';
+import { AuthRequest } from '../middleware/auth';
 
 type StreakState = {
   currentStreak: number;

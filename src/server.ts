@@ -2,14 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import aiRoutes from './routes/aiRoutes.ts';
-import authRoutes from './routes/authRoutes.ts';
-import userRoutes from './routes/userRoutes.ts';
-import resultRoutes from './routes/resultRoutes.ts';
-import sessionRoutes from './routes/sessionRoutes.ts';
+import aiRoutes from './routes/aiRoutes';
+import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
+import resultRoutes from './routes/resultRoutes';
+import sessionRoutes from './routes/sessionRoutes';
 import { createServer } from 'http';
 import { Server as IOServer } from 'socket.io';
-import { attachRoomHandlers } from './sockets/rooms.ts';
+import { attachRoomHandlers } from './sockets/rooms';
 
 dotenv.config();
 

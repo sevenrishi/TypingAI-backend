@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { generateText } from '../utils/aiService.ts';
+import { generateText } from '../utils/aiService';
 
 export async function generate(req: Request, res: Response) {
   const { topic, length, difficulty } = req.body;

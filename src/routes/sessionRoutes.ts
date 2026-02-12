@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import Session from '../models/Session.ts';
-import User from '../models/User.ts';
-import { requireAuth, AuthRequest } from '../middleware/auth.ts';
+import Session from '../models/Session';
+import User from '../models/User';
+import { requireAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 

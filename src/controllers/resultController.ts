@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import TestResult from '../models/TestResult.ts ';
-import User from '../models/User.ts';
-import { AuthRequest } from '../middleware/auth.ts';
+import TestResult from '../models/TestResult';
+import User from '../models/User';
+import { AuthRequest } from '../middleware/auth';
 
 export async function saveResult(req: AuthRequest, res: Response) {
   const userId = req.userId;
