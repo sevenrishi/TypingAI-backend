@@ -25,6 +25,17 @@ function emitRoomState(io: Server, room: string) {
   });
 }
 
+function closeRoom(io: Server, room: string, reason: string) {
+  const state = rooms[room];
+  if (!state) return;
+  io.to(room).emit('room:closed', { room, reason });
+  Object.keys(state.players).forEach((id) => {
+    const sock = io.sockets.sockets.get(id);
+    sock?.leave(room);
+  });
+  delete rooms[room];
+}
+
 export function attachRoomHandlers(io: Server) {
   io.on('connection', (socket: Socket) => {
     socket.on('room:create', ({ room, text, name }) => {
@@ -37,7 +48,7 @@ export function attachRoomHandlers(io: Server) {
     socket.on('room:join', ({ room, name }) => {
       const state = rooms[room];
       if (!state) return socket.emit('room:error', { error: 'Room not found' });
-      if (state.raceStart) return socket.emit('room:error', { error: 'Race already started. Please wait for the next round.' });
+      if (state.raceStart) return socket.emit('room:error', { error: 'Battle already started. Please wait for the next round.' });
       state.players[socket.id] = { name: name || 'Anon', progress: 0, ready: false, finished: false } as any;
       socket.join(room);
       emitRoomState(io, room);
@@ -88,16 +99,27 @@ export function attachRoomHandlers(io: Server) {
     socket.on('room:leave', ({ room }) => {
       const state = rooms[room];
       if (!state) return;
+      const wasHost = state.host === socket.id;
       delete state.players[socket.id];
       socket.leave(room);
       // if host left, pick a new host
-      if (state.host === socket.id) {
-        const keys = Object.keys(state.players);
-        state.host = keys.length ? keys[0] : undefined;
-      }
       // Remove from finished players list
       if (state.finishedPlayers) {
         state.finishedPlayers = state.finishedPlayers.filter(id => id !== socket.id);
+      }
+      const remainingPlayers = Object.keys(state.players);
+      if (remainingPlayers.length === 0) {
+        closeRoom(io, room, 'empty');
+        return;
+      }
+      const allPlayersFinished = remainingPlayers.length > 0
+        && remainingPlayers.every((id) => state.players[id]?.finished);
+      if (wasHost && allPlayersFinished) {
+        closeRoom(io, room, 'host-left');
+        return;
+      }
+      if (wasHost) {
+        state.host = remainingPlayers[0];
       }
       emitRoomState(io, room);
     });
@@ -148,16 +170,27 @@ export function attachRoomHandlers(io: Server) {
       for (const roomKey of Object.keys(rooms)) {
         const state = rooms[roomKey];
         if (state.players[socket.id]) {
+          const wasHost = state.host === socket.id;
           delete state.players[socket.id];
           // transfer host if needed
-          if (state.host === socket.id) {
-            const keys = Object.keys(state.players);
-            state.host = keys.length ? keys[0] : undefined;
-            io.to(roomKey).emit('room:host', { host: state.host });
-          }
           // Remove from finished players list
           if (state.finishedPlayers) {
             state.finishedPlayers = state.finishedPlayers.filter(id => id !== socket.id);
+          }
+          const remainingPlayers = Object.keys(state.players);
+          if (remainingPlayers.length === 0) {
+            closeRoom(io, roomKey, 'empty');
+            continue;
+          }
+          const allPlayersFinished = remainingPlayers.length > 0
+            && remainingPlayers.every((id) => state.players[id]?.finished);
+          if (wasHost && allPlayersFinished) {
+            closeRoom(io, roomKey, 'host-left');
+            continue;
+          }
+          if (wasHost) {
+            state.host = remainingPlayers.length ? remainingPlayers[0] : undefined;
+            io.to(roomKey).emit('room:host', { host: state.host });
           }
           emitRoomState(io, roomKey);
         }

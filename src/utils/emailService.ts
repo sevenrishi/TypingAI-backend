@@ -51,14 +51,14 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Password Reset Code</title>
     </head>
-    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
-      <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f7fa; padding: 40px 0;">
+    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9;">
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f1f5f9; padding: 40px 0;">
         <tr>
           <td align="center">
-            <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
+            <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(15, 23, 42, 0.12); overflow: hidden;">
               <!-- Header -->
               <tr>
-                <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                <td style="background: linear-gradient(135deg, #22d3ee 0%, #38bdf8 45%, #34d399 100%); padding: 40px 30px; text-align: center;">
                   <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
                     Reset Your Password 🔐
                   </h1>
@@ -68,10 +68,10 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
               <!-- Content -->
               <tr>
                 <td style="padding: 40px 30px;">
-                  <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 24px; font-weight: 600;">
+                  <h2 style="margin: 0 0 20px 0; color: #0f172a; font-size: 24px; font-weight: 600;">
                     Here is your password reset code
                   </h2>
-                  <p style="margin: 0 0 20px 0; color: #666666; font-size: 16px; line-height: 1.6;">
+                  <p style="margin: 0 0 20px 0; color: #475569; font-size: 16px; line-height: 1.6;">
                     We received a request to reset your TypingAI password. Use the code below to continue the reset process.
                   </p>
                   
@@ -79,8 +79,8 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
                   <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
                     <tr>
                       <td align="center">
-                        <div style="display: inline-block; background-color: #f8f9fa; border: 1px solid #e9ecef; padding: 18px 28px; border-radius: 10px;">
-                          <span style="color: #4f46e5; font-size: 28px; font-weight: 700; letter-spacing: 6px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                        <div style="display: inline-block; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 18px 28px; border-radius: 10px;">
+                          <span style="color: #0ea5e9; font-size: 28px; font-weight: 700; letter-spacing: 6px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
                             ${resetCode}
                           </span>
                         </div>
@@ -88,7 +88,7 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
                     </tr>
                   </table>
                   
-                  <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px; line-height: 1.6;">
+                  <p style="margin: 0 0 10px 0; color: #64748b; font-size: 14px; line-height: 1.6;">
                     This code will expire in 10 minutes.
                   </p>
                 </td>
@@ -97,8 +97,8 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
               <!-- Security Note -->
               <tr>
                 <td style="padding: 0 30px 40px 30px;">
-                  <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px;">
-                    <p style="margin: 0; color: #856404; font-size: 13px; line-height: 1.5;">
+                  <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 4px;">
+                    <p style="margin: 0; color: #92400e; font-size: 13px; line-height: 1.5;">
                       <strong>Security Note:</strong> If you did not request a password reset, please ignore this email. Your account remains secure.
                     </p>
                   </div>
@@ -107,11 +107,11 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
               
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef;">
-                  <p style="margin: 0 0 10px 0; color: #6c757d; font-size: 14px;">
-                    Need help? Contact us at <a href="mailto:support@typingai.com" style="color: #667eea; text-decoration: none;">support@typingai.com</a>
+                <td style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                  <p style="margin: 0 0 10px 0; color: #64748b; font-size: 14px;">
+                    Need help? Contact us at <a href="mailto:support@typingai.live" style="color: #0ea5e9; text-decoration: none;">support@typingai.live</a>
                   </p>
-                  <p style="margin: 0; color: #adb5bd; font-size: 12px;">
+                  <p style="margin: 0; color: #94a3b8; font-size: 12px;">
                     © 2026 TypingAI. All rights reserved.
                   </p>
                 </td>
@@ -143,14 +143,14 @@ export async function sendActivationEmail(email: string, displayName: string, us
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Activate Your Account</title>
     </head>
-    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
-      <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f7fa; padding: 40px 0;">
+    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9;">
+      <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f1f5f9; padding: 40px 0;">
         <tr>
           <td align="center">
-            <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
+            <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(15, 23, 42, 0.12); overflow: hidden;">
               <!-- Header -->
               <tr>
-                <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                <td style="background: linear-gradient(135deg, #22d3ee 0%, #38bdf8 45%, #34d399 100%); padding: 40px 30px; text-align: center;">
                   <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
                     Welcome to TypingAI! 🚀
                   </h1>
@@ -160,10 +160,10 @@ export async function sendActivationEmail(email: string, displayName: string, us
               <!-- Content -->
               <tr>
                 <td style="padding: 40px 30px;">
-                  <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 24px; font-weight: 600;">
+                  <h2 style="margin: 0 0 20px 0; color: #0f172a; font-size: 24px; font-weight: 600;">
                     Hello ${displayName},
                   </h2>
-                  <p style="margin: 0 0 20px 0; color: #666666; font-size: 16px; line-height: 1.6;">
+                  <p style="margin: 0 0 20px 0; color: #475569; font-size: 16px; line-height: 1.6;">
                     Thank you for signing up! We're excited to have you join the typing revolution. To get started, please activate your account by clicking the button below.
                   </p>
                   
@@ -171,18 +171,18 @@ export async function sendActivationEmail(email: string, displayName: string, us
                   <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
                     <tr>
                       <td align="center">
-                        <a href="${activationUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: transform 0.2s;">
+                        <a href="${activationUrl}" style="display: inline-block; background: linear-gradient(135deg, #22d3ee 0%, #38bdf8 45%, #34d399 100%); color: #0f172a; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 700; box-shadow: 0 8px 20px rgba(34, 211, 238, 0.35); transition: transform 0.2s;">
                           Activate My Account
                         </a>
                       </td>
                     </tr>
                   </table>
                   
-                  <p style="margin: 30px 0 10px 0; color: #666666; font-size: 14px; line-height: 1.6;">
+                  <p style="margin: 30px 0 10px 0; color: #64748b; font-size: 14px; line-height: 1.6;">
                     Or copy and paste this link into your browser:
                   </p>
-                  <p style="margin: 0; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #667eea; border-radius: 4px; word-break: break-all;">
-                    <a href="${activationUrl}" style="color: #667eea; text-decoration: none; font-size: 13px;">
+                  <p style="margin: 0; padding: 15px; background-color: #f0f9ff; border-left: 4px solid #22d3ee; border-radius: 4px; word-break: break-all;">
+                    <a href="${activationUrl}" style="color: #0ea5e9; text-decoration: none; font-size: 13px;">
                       ${activationUrl}
                     </a>
                   </p>
@@ -192,8 +192,8 @@ export async function sendActivationEmail(email: string, displayName: string, us
               <!-- Security Note -->
               <tr>
                 <td style="padding: 0 30px 40px 30px;">
-                  <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px;">
-                    <p style="margin: 0; color: #856404; font-size: 13px; line-height: 1.5;">
+                  <div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 4px;">
+                    <p style="margin: 0; color: #92400e; font-size: 13px; line-height: 1.5;">
                       <strong>Security Note:</strong> If you did not create an account with TypingAI, please ignore this email. Your email address will not be used without activation.
                     </p>
                   </div>
@@ -202,11 +202,11 @@ export async function sendActivationEmail(email: string, displayName: string, us
               
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef;">
-                  <p style="margin: 0 0 10px 0; color: #6c757d; font-size: 14px;">
-                    Need help? Contact us at <a href="mailto:support@typingai.com" style="color: #667eea; text-decoration: none;">support@typingai.com</a>
+                <td style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                  <p style="margin: 0 0 10px 0; color: #64748b; font-size: 14px;">
+                    Need help? Contact us at <a href="mailto:support@typingai.live" style="color: #0ea5e9; text-decoration: none;">support@typingai.live</a>
                   </p>
-                  <p style="margin: 0; color: #adb5bd; font-size: 12px;">
+                  <p style="margin: 0; color: #94a3b8; font-size: 12px;">
                     © 2026 TypingAI. All rights reserved.
                   </p>
                 </td>
