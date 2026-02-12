@@ -9,7 +9,7 @@ import resultRoutes from './routes/resultRoutes.ts';
 import sessionRoutes from './routes/sessionRoutes.ts';
 import { createServer } from 'http';
 import { Server as IOServer } from 'socket.io';
-import { attachRoomHandlers } from './sockets/rooms';
+import { attachRoomHandlers } from './sockets/rooms.ts';
 
 dotenv.config();
 

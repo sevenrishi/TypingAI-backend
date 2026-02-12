@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { getProfile, updateAvatar, getProgress, recordStreak, updateLearningProgress } from '../controllers/userController';
-import { requireAuth } from '../middleware/auth';
+import { getProfile, updateAvatar, getProgress, recordStreak, updateLearningProgress } from '../controllers/userController.ts';
+import { requireAuth } from '../middleware/auth.ts';
 
 const router = Router();
 

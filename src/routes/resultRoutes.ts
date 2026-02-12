@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { saveResult, getMyResults } from '../controllers/resultController';
-import { requireAuth } from '../middleware/auth';
+import { saveResult, getMyResults } from '../controllers/resultController.ts';
+import { requireAuth } from '../middleware/auth.ts';
 
 const router = Router();
 
