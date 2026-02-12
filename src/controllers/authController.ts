@@ -160,8 +160,8 @@ export async function resetPassword(req: Request, res: Response) {
     const passwordHash = await bcrypt.hash(newPassword, salt);
 
     user.passwordHash = passwordHash;
-    user.resetCode = null;
-    user.resetCodeExpiry = null;
+    user.resetCode = undefined;
+    user.resetCodeExpiry = undefined;
     await user.save();
 
     return res.status(200).json({ message: 'Password reset successfully' });

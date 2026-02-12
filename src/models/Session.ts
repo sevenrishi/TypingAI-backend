@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export type SessionType = 'practice' | 'test' | 'battle';
 
-export interface ISession extends Document {
+export interface ISession {
   user: mongoose.Types.ObjectId;
   type: SessionType;
   wpm: number;

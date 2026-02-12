@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export interface ITestResult extends Document {
+export interface ITestResult {
   user?: mongoose.Types.ObjectId;
   wpm: number;
   cpm: number;
