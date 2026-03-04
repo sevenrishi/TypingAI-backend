@@ -3,9 +3,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const defaultEmailFrom = process.env.EMAIL_FROM || process.env.EMAIL_USER || 'noreply@typingai.live';
+const supportEmail = process.env.SUPPORT_EMAIL || 'support@typingai.live';
+
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.EMAIL_PORT || '587'),
+  host: process.env.EMAIL_HOST || 'smtp.resend.com',
+  port: parseInt(process.env.EMAIL_PORT || '587', 10),
   secure: process.env.EMAIL_SECURE === 'true',
   auth: {
     user: process.env.EMAIL_USER,
@@ -28,7 +31,7 @@ export interface SendEmailOptions {
 export async function sendEmail(options: SendEmailOptions): Promise<void> {
   try {
     const mailOptions = {
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      from: defaultEmailFrom,
       to: options.to,
       subject: options.subject,
       html: options.html,
@@ -107,9 +110,9 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
               
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-                  <p style="margin: 0 0 10px 0; color: #64748b; font-size: 14px;">
-                    Need help? Contact us at <a href="mailto:support@typingai.live" style="color: #0ea5e9; text-decoration: none;">support@typingai.live</a>
+                <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef;">
+                  <p style="margin: 0 0 10px 0; color: #6c757d; font-size: 14px;">
+                    Need help? Contact us at <a href="mailto:${supportEmail}" style="color: #667eea; text-decoration: none;">${supportEmail}</a>
                   </p>
                   <p style="margin: 0; color: #94a3b8; font-size: 12px;">
                     © 2026 TypingAI. All rights reserved.
@@ -202,9 +205,9 @@ export async function sendActivationEmail(email: string, displayName: string, us
               
               <!-- Footer -->
               <tr>
-                <td style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-                  <p style="margin: 0 0 10px 0; color: #64748b; font-size: 14px;">
-                    Need help? Contact us at <a href="mailto:support@typingai.live" style="color: #0ea5e9; text-decoration: none;">support@typingai.live</a>
+                <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef;">
+                  <p style="margin: 0 0 10px 0; color: #6c757d; font-size: 14px;">
+                    Need help? Contact us at <a href="mailto:${supportEmail}" style="color: #667eea; text-decoration: none;">${supportEmail}</a>
                   </p>
                   <p style="margin: 0; color: #94a3b8; font-size: 12px;">
                     © 2026 TypingAI. All rights reserved.
