@@ -152,10 +152,14 @@ export async function getProgress(req: AuthRequest, res: Response) {
   const learning = user.learning
     ? {
       completedLessons: user.learning.completedLessons || [],
+      practiceCounts: Object.fromEntries(
+        Object.entries((user.learning.practiceCounts as any)?.toJSON?.() || user.learning.practiceCounts || {})
+          .map(([key, value]) => [String(key), Number(value) || 0])
+      ),
       certificate: user.learning.certificate || null,
       updatedAt: user.learning.updatedAt || null
     }
-    : { completedLessons: [], certificate: null, updatedAt: null };
+    : { completedLessons: [], practiceCounts: {}, certificate: null, updatedAt: null };
 
   return res.json({
     streak: buildStreakSnapshot(streakState, dateKey),
@@ -191,7 +195,7 @@ export async function updateLearningProgress(req: AuthRequest, res: Response) {
   const userId = req.userId;
   if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-  const { completedLessons, certificate } = req.body || {};
+  const { completedLessons, practiceCounts, certificate } = req.body || {};
 
   const user = await User.findById(userId);
   if (!user) return res.status(404).json({ error: 'User not found' });
@@ -200,13 +204,30 @@ export async function updateLearningProgress(req: AuthRequest, res: Response) {
     return res.status(400).json({ error: 'completedLessons must be an array' });
   }
 
+  if (practiceCounts !== undefined && (typeof practiceCounts !== 'object' || Array.isArray(practiceCounts) || practiceCounts === null)) {
+    return res.status(400).json({ error: 'practiceCounts must be an object' });
+  }
+
   const normalizedLessons = Array.isArray(completedLessons)
     ? Array.from(new Set(completedLessons.map((value: any) => Number(value)).filter((value: any) => Number.isFinite(value))))
     : (user.learning?.completedLessons || []);
 
+  const existingPracticeCounts = Object.fromEntries(
+    Object.entries(((user.learning?.practiceCounts as any)?.toJSON?.() || user.learning?.practiceCounts || {}) as Record<string, unknown>)
+      .map(([key, value]) => [String(key), Number(value) || 0])
+  );
+
+  const normalizedPracticeCounts = practiceCounts && typeof practiceCounts === 'object'
+    ? Object.fromEntries(
+      Object.entries(practiceCounts as Record<string, unknown>)
+        .map(([key, value]) => [String(key), Math.max(0, Math.floor(Number(value) || 0))])
+    )
+    : existingPracticeCounts;
+
   const nextCertificate = certificate || user.learning?.certificate || null;
   user.learning = {
     completedLessons: normalizedLessons,
+    practiceCounts: normalizedPracticeCounts,
     certificate: nextCertificate,
     updatedAt: new Date()
   };

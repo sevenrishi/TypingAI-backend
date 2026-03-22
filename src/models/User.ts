@@ -22,6 +22,7 @@ export interface IUser extends Document {
   };
   learning?: {
     completedLessons: number[];
+    practiceCounts?: Record<string, number>;
     certificate?: {
       id: string;
       issuedTo: string;
@@ -66,6 +67,7 @@ const UserSchema = new Schema<IUser>({
   },
   learning: {
     completedLessons: { type: [Number], default: [] },
+    practiceCounts: { type: Map, of: Number, default: {} },
     certificate: { type: CertificateSchema, default: null },
     updatedAt: { type: Date, default: null }
   },
