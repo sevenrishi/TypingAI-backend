@@ -99,6 +99,8 @@ export function attachRoomHandlers(io: Server) {
     socket.on('room:leave', ({ room }) => {
       const state = rooms[room];
       if (!state) return;
+      const leavingPlayer = state.players[socket.id];
+      const leavingName = leavingPlayer?.name || 'A player';
       const wasHost = state.host === socket.id;
       delete state.players[socket.id];
       socket.leave(room);
@@ -108,6 +110,9 @@ export function attachRoomHandlers(io: Server) {
         state.finishedPlayers = state.finishedPlayers.filter(id => id !== socket.id);
       }
       const remainingPlayers = Object.keys(state.players);
+      if (remainingPlayers.length > 0) {
+        socket.to(room).emit('room:playerLeft', { room, playerId: socket.id, name: leavingName, reason: 'leave' });
+      }
       if (remainingPlayers.length === 0) {
         closeRoom(io, room, 'empty');
         return;
@@ -143,18 +148,20 @@ export function attachRoomHandlers(io: Server) {
     socket.on('race:reset', ({ room }) => {
       const state = rooms[room];
       if (!state) return socket.emit('room:error', { error: 'Room not found' });
-      const p = state.players[socket.id];
-      if (p) {
-        p.ready = false;
-        p.finished = false;
-        p.progress = 0;
-        p.wpm = 0;
-        p.accuracy = 0;
-      }
-      if (state.finishedPlayers) {
-        state.finishedPlayers = state.finishedPlayers.filter(id => id !== socket.id);
-      }
+      const triggeringPlayer = state.players[socket.id];
+      if (!triggeringPlayer) return;
+      const triggeringName = triggeringPlayer.name || 'A player';
+      Object.values(state.players).forEach((player) => {
+        player.ready = false;
+        player.finished = false;
+        player.progress = 0;
+        player.wpm = 0;
+        player.accuracy = 0;
+      });
+      state.finishedPlayers = [];
+      state.raceStart = null;
       emitRoomState(io, room);
+      io.to(room).emit('race:reset', { room, by: socket.id, name: triggeringName });
     });
 
     // allow host to set/update the room text (only host)
@@ -170,6 +177,7 @@ export function attachRoomHandlers(io: Server) {
       for (const roomKey of Object.keys(rooms)) {
         const state = rooms[roomKey];
         if (state.players[socket.id]) {
+          const leavingName = state.players[socket.id]?.name || 'A player';
           const wasHost = state.host === socket.id;
           delete state.players[socket.id];
           // transfer host if needed
@@ -178,6 +186,9 @@ export function attachRoomHandlers(io: Server) {
             state.finishedPlayers = state.finishedPlayers.filter(id => id !== socket.id);
           }
           const remainingPlayers = Object.keys(state.players);
+          if (remainingPlayers.length > 0) {
+            io.to(roomKey).emit('room:playerLeft', { room: roomKey, playerId: socket.id, name: leavingName, reason: 'disconnect' });
+          }
           if (remainingPlayers.length === 0) {
             closeRoom(io, roomKey, 'empty');
             continue;
